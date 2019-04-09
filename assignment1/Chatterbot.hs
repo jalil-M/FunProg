@@ -104,7 +104,7 @@ reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
 
-{- To do: JMoran -}
+{- To-do 9/4: @jonathanloganmoran -}
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply _ = id
@@ -147,14 +147,27 @@ match wc (x:ps) (s:sl)
     | wc /= x = Nothing
     | otherwise longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
 
-{- TO DO 9/4: @jonathanloganmoran -}
+{- MODIFIED 9/4: @jonathanloganmoran -}
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = Nothing
-{- TO BE WRITTEN -}
-longerWildcardMatch (wc:ps) (x:xs) = Nothing
-{- TO BE WRITTEN -}
+-- Cases to handle:
+--- Expected case: first matches second
+singleWildcardMatch [] [] = Just []
+--- Second case: wildcard matches list
+singleWildcardMatch _ [] = Nothing
+--- Third case: list matches wildcard
+singleWildcardMatch [] _ = Nothing
+singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) wc ps xs
 
+{- TO BE WRITTEN -}
+-- Cases to handle:
+--- Expected case: wildcard retained, matches remaining list
+longerWildcardMatch [] [] = Just []
+--- Second case: wildcard removed, sublist matches after
+longerWildcardMatch _ [] = Nothing
+--- Third case: wildcard removed, sublist matches before
+longerWildcardMatch [] _ = Nothing
+longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 
 
 -- Test cases --------------------
