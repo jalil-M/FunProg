@@ -78,7 +78,7 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 {- To Do: jonathanloganmoran -}
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN: Modified 9/4 by jalil-M -}
-rulesCompile _ = []
+rulesCompile = (map . map2) ((words . map toLower), map words)
 
 --------------------------------------
 
@@ -104,7 +104,7 @@ reduce = reductionsApply reductions
 {- To do: JMoran -}
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-reductionsApply _ = id
+--reductionsApply _ = id
 
 
 -------------------------------------------------------
