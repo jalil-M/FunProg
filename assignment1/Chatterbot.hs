@@ -28,10 +28,9 @@ type BotBrain = [(Phrase, [Phrase])]
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
 -- stateOfMind _ = return id
-stateOfMind brain = 
-	do
-		rand <- randomIO :: IO Float
-		return (rulesApply((map . map2)(id, pick rand) brain))
+stateOfMind brain = do
+  rand <- randomIO :: IO Float
+  return (rulesApply((map . map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -42,7 +41,7 @@ reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
 -- reflect = id
 reflect = map reflectWord
-	where reflectWord = try (flip lookup reflections)
+  where reflectWord = try (flip lookup reflections)
 
 
 reflections =
@@ -120,9 +119,9 @@ substitute _ [] _ = []
 ---- Exists for x <-> s where both are present 
 substitute f (x:xs) s
 ---- Does not exist for f: append to position and form returned list
-    | f == x = s ++ substitute f xs s
+  | f == x = s ++ substitute f xs s
 ---- Does not exist for x: tail recursion (cons)
-    | otherwise = f : substitute f xs s
+  | otherwise = f : substitute f xs s
 
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
@@ -140,12 +139,13 @@ match _ _ [] = Nothing
 match _ [] _ = Nothing
 
 match wc (x:ps) (s:sl)
-    | x == s = match wc ps sl
-    | wc /= x = Nothing
-    | otherwise longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
+  | x == s = match wc ps sl
+  | wc /= x = Nothing
+  | otherwise longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
 
 {- MODIFIED 9/4: @jonathanloganmoran -}
 -- Helper function to match
+
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 -- Cases to handle:
 --- Expected case: first matches second
@@ -154,7 +154,7 @@ singleWildcardMatch [] [] = Just []
 singleWildcardMatch _ [] = Nothing
 --- Third case: list matches wildcard
 singleWildcardMatch [] _ = Nothing
-singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) wc ps xs
+singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) (match wc ps xs)
 
 <<<<<<< HEAD
 {- TO BE WRITTEN -}
@@ -166,6 +166,7 @@ longerWildcardMatch _ [] = Nothing
 --- Third case: wildcard removed, sublist matches before
 longerWildcardMatch [] _ = Nothing
 longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
+
 
 
 =======
