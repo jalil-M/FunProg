@@ -31,12 +31,12 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind brain = 
 	do
 		rand <- randomIO :: IO Float
-		return (rulesApply((map.map2)(id, pick rand) brain))
+		return (rulesApply((map . map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 -- rulesApply _ = id
-ruleApply = try.TransformationsApply "*" reflect
+rulesApply = try.transformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -64,7 +64,6 @@ reflections =
     ("you",    "me")
   ]
 
-
 ---------------------------------------------------------------------------------
 
 endOfDialog :: String -> Bool
@@ -79,11 +78,9 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 {- To Do: jonathanloganmoran -}
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN: Modified 9/4 by jalil-M -}
-rulesCompile _ = []
-
+rulesCompile = (map . map2) ((words . map toLower), map words)
 
 --------------------------------------
-
 
 reductions :: [PhrasePair]
 reductions = (map.map2) (words, words)
@@ -107,7 +104,7 @@ reduce = reductionsApply reductions
 {- To-do 9/4: @jonathanloganmoran -}
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-reductionsApply _ = id
+--reductionsApply _ = id
 
 
 -------------------------------------------------------
@@ -159,6 +156,7 @@ singleWildcardMatch _ [] = Nothing
 singleWildcardMatch [] _ = Nothing
 singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) wc ps xs
 
+<<<<<<< HEAD
 {- TO BE WRITTEN -}
 -- Cases to handle:
 --- Expected case: wildcard retained, matches remaining list
@@ -170,6 +168,8 @@ longerWildcardMatch [] _ = Nothing
 longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 
 
+=======
+>>>>>>> cf816d78c3bf1dfc2a1652484b085c422a037e9b
 -- Test cases --------------------
 
 testPattern =  "a=*;"
@@ -182,9 +182,7 @@ substituteCheck = substituteTest == testString
 matchTest = match '*' testPattern testString
 matchCheck = matchTest == Just testSubstitutions
 
-
-
--------------------------------------------------------
+--------------------------------------------------------
 -- Applying patterns
 --------------------------------------------------------
 
