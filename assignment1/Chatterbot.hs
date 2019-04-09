@@ -27,11 +27,16 @@ type BotBrain = [(Phrase, [Phrase])]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
-stateOfMind _ = return id
+-- stateOfMind _ = return id
+stateOfMind brain = 
+	do
+		rand <- randomIO :: IO Float
+		return (rulesApply((map.map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-rulesApply _ = id
+-- rulesApply _ = id
+ruleApply = try.TransformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -148,13 +153,15 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply _ _ _ _ = Nothing
+--transformationApply _ _ _ _ = Nothing
 {- TO BE WRITTEN -}
+transformationApply a f1 b (x, y) = mmap (substitute a y) (mmap f1 (match a x b))
 
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
-transformationsApply _ _ _ _ = Nothing
+--transformationsApply _ _ _ _ = Nothing
 {- TO BE WRITTEN -}
+transformationsApply a f2 b list = foldl1 orElse (map (transformationApply a f2 list) b)
 
 
