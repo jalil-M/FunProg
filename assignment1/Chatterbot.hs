@@ -71,8 +71,9 @@ present = unwords
 prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
 
+{- To Do: jonathanloganmoran -}
 rulesCompile :: [(String, [String])] -> BotBrain
-{- TO BE WRITTEN -}
+{- TO BE WRITTEN: Modified 9/4 by jalil-M -}
 rulesCompile _ = []
 
 
@@ -97,6 +98,8 @@ reductions = (map.map2) (words, words)
 reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
+
+{- To do: JMoran -}
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply _ = id
@@ -108,17 +111,38 @@ reductionsApply _ = id
 
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
-substitute _ _ _ = []
-{- TO BE WRITTEN -}
-
+{- TO BE WRITTEN: -}
+--  MODIFIED: 9/4 by jonathanloganmoran
+substitute _ [] _ = []
+-- Cases to handle: 
+---- Exists for x <-> s where both are present 
+substitute f (x:xs) s
+---- Does not exist for f: append to position and form returned list
+    | f == x = s ++ substitute f xs s
+---- Does not exist for x: tail recursion (cons)
+    | otherwise = f : substitute f xs s
 
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match _ _ _ = Nothing
 {- TO BE WRITTEN -}
+--  MODIFIED: 9/4 by jonathanloganmoran
+match _ _ _ = Nothing
+-- Cases to handle: 
+--- Default case: wildcard matches
+match _ [] [] = Just []
+--- Second case: input is empty
+match _ _ [] = Nothing
+--- Third case: wildcard does not exist in sublist
+match _ [] _ = Nothing
 
+match wc (x:ps) (s:sl)
+    | x == s = match wc ps sl
+    | wc /= x = Nothing
+    | otherwise longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
 
+{- TO DO 9/4: @jonathanloganmoran -}
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (wc:ps) (x:xs) = Nothing
