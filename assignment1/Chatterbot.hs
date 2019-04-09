@@ -31,12 +31,12 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind brain = 
 	do
 		rand <- randomIO :: IO Float
-		return (rulesApply((map.map2)(id, pick rand) brain))
+		return (rulesApply((map . map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 -- rulesApply _ = id
-ruleApply = try.TransformationsApply "*" reflect
+rulesApply = try.transformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -64,7 +64,6 @@ reflections =
     ("you",    "me")
   ]
 
-
 ---------------------------------------------------------------------------------
 
 endOfDialog :: String -> Bool
@@ -80,9 +79,7 @@ rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
 rulesCompile _ = []
 
-
 --------------------------------------
-
 
 reductions :: [PhrasePair]
 reductions = (map.map2) (words, words)
@@ -131,8 +128,6 @@ singleWildcardMatch (wc:ps) (x:xs) = Nothing
 longerWildcardMatch (wc:ps) (x:xs) = Nothing
 {- TO BE WRITTEN -}
 
-
-
 -- Test cases --------------------
 
 testPattern =  "a=*;"
@@ -145,9 +140,7 @@ substituteCheck = substituteTest == testString
 matchTest = match '*' testPattern testString
 matchCheck = matchTest == Just testSubstitutions
 
-
-
--------------------------------------------------------
+--------------------------------------------------------
 -- Applying patterns
 --------------------------------------------------------
 
