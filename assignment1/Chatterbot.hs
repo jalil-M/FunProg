@@ -26,18 +26,15 @@ type BotBrain = [(Phrase, [Phrase])]
 --------------------------------------------------------
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
-{- TO BE WRITTEN -}
 stateOfMind brain =
   do
     rand <- randomIO :: IO Float
     return (rulesApply((map . map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
 rulesApply = try . (transformationsApply "*" reflect)
 
 reflect :: Phrase -> Phrase
-{- TO BE WRITTEN -}
 reflect = (map . try)(flip lookup reflections)
 
 reflections =
@@ -72,9 +69,8 @@ prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 rulesCompile :: [(String, [String])] -> BotBrain
-{- TO BE WRITTEN -}
-rulesCompile = (map.map2) (f, map f)
-  where f = words . map toLower
+rulesCompile = (map.map2) (x, map x)
+  where x = words . map toLower
 
 
 --------------------------------------
@@ -99,7 +95,6 @@ reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
 reductionsApply = fix . try . transformationsApply "*" id
 
 -------------------------------------------------------
@@ -118,14 +113,9 @@ substitute w (x:xs) y
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
-{- TO BE WRITTEN -}
 match _ [] [] = Just []
 match _ _ [] = Nothing
 match _ [] _ = Nothing
---match w p s
---    | head p == w = orElse (singleWildcardMatch p s) (longerWildcardMatch p s)
---    | head p == head s = match w (tail p) (tail s)
---    | otherwise = Nothing
 match wc (x:ps) (s:sl)
   | x == s = match wc ps sl
   | wc /= x = Nothing
@@ -134,8 +124,6 @@ match wc (x:ps) (s:sl)
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
---singleWildcardMatch (w:xs) (p:ps) = mmap (const [p]) (match w xs ps)
---longerWildcardMatch (w:xs) (p:ps) = mmap (p:) (match w (w:xs) ps)
 singleWildcardMatch (wc : ps) (x : xs) = mmap (const [x]) (match wc ps xs)
 longerWildcardMatch (wc : ps) (x : xs) = mmap (x :) (match wc (wc:ps) xs)
 --singleWildcardMatch [] [] = Just []
