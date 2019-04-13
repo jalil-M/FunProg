@@ -27,7 +27,7 @@ type BotBrain = [(Phrase, [Phrase])]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
-stateOfMind mind =
+stateOfMind brain =
   do
     rand <- randomIO :: IO Float
     return (rulesApply((map . map2)(id, pick rand) brain))
@@ -109,8 +109,8 @@ reductionsApply = fix . try . transformationsApply "*" id
 
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
-substitute _ _ _ = []
 {- TO BE WRITTEN -}
+substitute _ [] _ = []
 substitute f (x:xs) s
   | f == x = s ++ substitute f xs s
   | otherwise = f : substitute f xs s
@@ -119,7 +119,6 @@ substitute f (x:xs) s
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
-match _ _ _ = Nothing
 {- TO BE WRITTEN -}
 match _ [] [] = Just []
 match _ _ [] = Nothing
@@ -128,23 +127,21 @@ match _ [] _ = Nothing
 match wc (x:ps) (s:sl)
   | x == s = match wc ps sl
   | wc /= x = Nothing
-  | otherwise longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
+  | otherwise = longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
 
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) wc ps xs
 singleWildcardMatch [] [] = Just []
 singleWildcardMatch _ [] = Nothing
 singleWildcardMatch [] _ = Nothing
+singleWildcardMatch (wc : ps) (x : xs) = mmap (const [x]) (match wc ps xs)
 
-longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 longerWildcardMatch [] [] = Just []
 longerWildcardMatch _ [] = Nothing
 longerWildcardMatch [] _ = Nothing
-
-
+longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 
 -- Test cases --------------------
 
@@ -157,8 +154,6 @@ substituteCheck = substituteTest == testString
 
 matchTest = match '*' testPattern testString
 matchCheck = matchTest == Just testSubstitutions
-
-
 
 -------------------------------------------------------
 -- Applying patterns
