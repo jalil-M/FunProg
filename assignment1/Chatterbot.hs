@@ -34,12 +34,11 @@ stateOfMind brain =
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-rulesApply = try . transformationsApply "*" reflect
+rulesApply = try . (transformationsApply "*" reflect)
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
-reflect = map reflectWord
-  where reflectWord = try (flip lookup reflections)
+reflect = (map . try)(flip lookup reflections)
 
 reflections =
   [ ("am",     "are"),
@@ -74,7 +73,8 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
-rulesCompile = (map . map2) ((words . map toLower), map words)
+rulesCompile = (map.map2) (f, map f)
+  where f = words . map toLower
 
 
 --------------------------------------
@@ -102,7 +102,6 @@ reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply = fix . try . transformationsApply "*" id
 
-
 -------------------------------------------------------
 -- Match and substitute
 --------------------------------------------------------
@@ -111,9 +110,9 @@ reductionsApply = fix . try . transformationsApply "*" id
 substitute :: Eq a => a -> [a] -> [a] -> [a]
 {- TO BE WRITTEN -}
 substitute _ [] _ = []
-substitute f (x:xs) s
-  | f == x = s ++ substitute f xs s
-  | otherwise = f : substitute f xs s
+substitute w (x:xs) y
+    | x == w = y ++ (substitute w xs y)
+    | otherwise = x : (substitute w xs y)
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
@@ -123,24 +122,29 @@ match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match _ [] [] = Just []
 match _ _ [] = Nothing
 match _ [] _ = Nothing
+--match w p s
+--    | head p == w = orElse (singleWildcardMatch p s) (longerWildcardMatch p s)
+--    | head p == head s = match w (tail p) (tail s)
+--    | otherwise = Nothing
 match wc (x:ps) (s:sl)
   | x == s = match wc ps sl
   | wc /= x = Nothing
   | otherwise = longerWildcardMatch (x:ps) (s:sl) `orElse` singleWildcardMatch (x:ps) (s:sl)
 
 
-
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch [] [] = Just []
-singleWildcardMatch _ [] = Nothing
-singleWildcardMatch [] _ = Nothing
+--singleWildcardMatch (w:xs) (p:ps) = mmap (const [p]) (match w xs ps)
+--longerWildcardMatch (w:xs) (p:ps) = mmap (p:) (match w (w:xs) ps)
 singleWildcardMatch (wc : ps) (x : xs) = mmap (const [x]) (match wc ps xs)
+longerWildcardMatch (wc : ps) (x : xs) = mmap (x :) (match wc (wc:ps) xs)
+--singleWildcardMatch [] [] = Just []
+--singleWildcardMatch _ [] = Nothing
+--singleWildcardMatch [] _ = Nothing
+--longerWildcardMatch [] [] = Just []
+--longerWildcardMatch _ [] = Nothing
+--longerWildcardMatch [] _ = Nothing
 
-longerWildcardMatch [] [] = Just []
-longerWildcardMatch _ [] = Nothing
-longerWildcardMatch [] _ = Nothing
-longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 
 -- Test cases --------------------
 
@@ -162,8 +166,11 @@ matchCheck = matchTest == Just testSubstitutions
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
 transformationApply a f1 b (x, y) = mmap (substitute a y) (mmap f1 (match a x b))
 --transformationApply wildcard func target (key, value) = mmap (substitute wildcard value) (mmap func (match wildcard key target))
+--transformationApply w f list pattern = mmap (substitute w (snd pattern) . f) (match w (fst pattern) list)
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply a f2 b list = foldl1 orElse (map (transformationApply a f2 list) b)
 --transformationsApply wildcard fun dictionary lookupList = foldl1 orElse (map (transformationApply wildcard fun lookupList) dictionary)
+--transformationsApply _ _ [] _ = Nothing
+--transformationsApply w f (p:ps) list = orElse (transformationApply w f list p) (transformationsApply w f ps list)
