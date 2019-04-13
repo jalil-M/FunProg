@@ -34,7 +34,7 @@ stateOfMind brain =
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-rulesApply = try.transformationsApply "*" reflect
+rulesApply = try . transformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -74,7 +74,7 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
-rulesCompile = (map .map2) ((words . map toLower), map words)
+rulesCompile = (map . map2) ((words . map toLower), map words)
 
 
 --------------------------------------
@@ -123,7 +123,6 @@ match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match _ [] [] = Just []
 match _ _ [] = Nothing
 match _ [] _ = Nothing
-
 match wc (x:ps) (s:sl)
   | x == s = match wc ps sl
   | wc /= x = Nothing
@@ -162,8 +161,9 @@ matchCheck = matchTest == Just testSubstitutions
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
 transformationApply a f1 b (x, y) = mmap (substitute a y) (mmap f1 (match a x b))
-
+--transformationApply wildcard func target (key, value) = mmap (substitute wildcard value) (mmap func (match wildcard key target))
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply a f2 b list = foldl1 orElse (map (transformationApply a f2 list) b)
+--transformationsApply wildcard fun dictionary lookupList = foldl1 orElse (map (transformationApply wildcard fun lookupList) dictionary)
