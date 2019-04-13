@@ -70,7 +70,7 @@ present :: Phrase -> String
 present = unwords
 
 prepare :: String -> Phrase
-prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
+prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
@@ -137,12 +137,12 @@ singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) wc ps xs
 singleWildcardMatch [] [] = Just []
 singleWildcardMatch _ [] = Nothing
-singleWildcardMatch [] _ Nothing
+singleWildcardMatch [] _ = Nothing
 
 longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
 longerWildcardMatch [] [] = Just []
 longerWildcardMatch _ [] = Nothing
-longerWildcardMatch [] _ Nothing
+longerWildcardMatch [] _ = Nothing
 
 
 
@@ -172,5 +172,3 @@ transformationApply a f1 b (x, y) = mmap (substitute a y) (mmap f1 (match a x b)
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply a f2 b list = foldl1 orElse (map (transformationApply a f2 list) b)
-
-
