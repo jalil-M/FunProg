@@ -106,9 +106,9 @@ reductionsApply = fix . try . transformationsApply "*" id
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
 substitute _ [] _ = []
-substitute w (x:xs) y
-    | x == w = y ++ substitute w xs y
-    | otherwise = x : substitute w xs y
+substitute test (x:xs) y
+    | x == test = y ++ substitute test xs y
+    | otherwise = x : substitute test xs y
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
