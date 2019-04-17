@@ -1,0 +1,6 @@
+- fix lecture l1 code --> load it in a normal interpreter
+
+RESULT:
+- hlint = flip and lookup comment --> why the same ?
+- forget about the "ARGH!" test
+- conflict for the phrases "can you *"

@@ -1,7 +1,8 @@
 module Chatterbot where
-import Utilities
-import System.Random
-import Data.Char
+
+import           Data.Char
+import           System.Random
+import           Utilities
 
 chatterbot :: String -> [(String, [String])] -> IO ()
 chatterbot botName botRules = do
@@ -21,7 +22,7 @@ chatterbot botName botRules = do
 type Phrase = [String]
 type PhrasePair = (Phrase, Phrase)
 type BotBrain = [(Phrase, [Phrase])]
-
+--ok
 
 --------------------------------------------------------
 
@@ -32,10 +33,11 @@ stateOfMind brain =
     return (rulesApply((map . map2)(id, pick rand) brain))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-rulesApply = try . (transformationsApply "*" reflect)
+rulesApply = try . transformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
-reflect = (map . try)(flip lookup reflections)
+reflect = (map . try)(`lookup` reflections)
+-- flip and lookup here
 
 reflections =
   [ ("am",     "are"),
@@ -69,8 +71,8 @@ prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 rulesCompile :: [(String, [String])] -> BotBrain
-rulesCompile = (map.map2) (x, map x)
-  where x = words . map toLower
+rulesCompile = (map.map2) (list, map list)
+  where list = words . map toLower
 
 
 --------------------------------------
@@ -103,11 +105,10 @@ reductionsApply = fix . try . transformationsApply "*" id
 
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
-{- TO BE WRITTEN -}
 substitute _ [] _ = []
 substitute w (x:xs) y
-    | x == w = y ++ (substitute w xs y)
-    | otherwise = x : (substitute w xs y)
+    | x == w = y ++ substitute w xs y
+    | otherwise = x : substitute w xs y
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
@@ -126,12 +127,6 @@ match wc (x:ps) (s:sl)
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (wc : ps) (x : xs) = mmap (const [x]) (match wc ps xs)
 longerWildcardMatch (wc : ps) (x : xs) = mmap (x :) (match wc (wc:ps) xs)
---singleWildcardMatch [] [] = Just []
---singleWildcardMatch _ [] = Nothing
---singleWildcardMatch [] _ = Nothing
---longerWildcardMatch [] [] = Just []
---longerWildcardMatch _ [] = Nothing
---longerWildcardMatch [] _ = Nothing
 
 
 -- Test cases --------------------
@@ -153,12 +148,7 @@ matchCheck = matchTest == Just testSubstitutions
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
 transformationApply a f1 b (x, y) = mmap (substitute a y) (mmap f1 (match a x b))
---transformationApply wildcard func target (key, value) = mmap (substitute wildcard value) (mmap func (match wildcard key target))
---transformationApply w f list pattern = mmap (substitute w (snd pattern) . f) (match w (fst pattern) list)
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply a f2 b list = foldl1 orElse (map (transformationApply a f2 list) b)
---transformationsApply wildcard fun dictionary lookupList = foldl1 orElse (map (transformationApply wildcard fun lookupList) dictionary)
---transformationsApply _ _ [] _ = Nothing
---transformationsApply w f (p:ps) list = orElse (transformationApply w f list p) (transformationsApply w f ps list)
