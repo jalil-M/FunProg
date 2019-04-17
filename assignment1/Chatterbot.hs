@@ -31,13 +31,14 @@ stateOfMind brain =
   do
     rand <- randomIO :: IO Float
     return (rulesApply((map . map2)(id, pick rand) brain))
+-- Randomization process
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 rulesApply = try . transformationsApply "*" reflect
 
 reflect :: Phrase -> Phrase
 reflect = (map . try)(`lookup` reflections)
--- flip and lookup here
+-- The equivalent form is flip and lookup here
 
 reflections =
   [ ("am",     "are"),
@@ -144,6 +145,8 @@ matchCheck = matchTest == Just testSubstitutions
 -------------------------------------------------------
 -- Applying patterns
 --------------------------------------------------------
+
+-- f1 and f2 represent the functions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
