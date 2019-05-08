@@ -45,6 +45,24 @@ similarityScore (x:xs) (y:ys) = maximum [ similarityScore xs ys + score x y,
                                           similarityScore xs (y:ys) + score x '-', 
                                           similarityScore (x:xs) ys + score '-' y ]
 
+
+{- The new similarity Score Function using the definition of mcsLength (memoization technique) -}
+similarityScoreNew :: String -> String -> Int
+similarityScoreNew xs ys = sLen (length xs) (length ys)
+  where
+    sLen i j = sTable!!i!!j
+    sTable = [[ sEntry i j | j<-[0..]] | i<-[0..] ]
+
+    sEntry :: Int -> Int -> Int
+    -- initialize entry to zero
+    -- iterate over similarityScore 
+    sEntry i 0 = scoreSpace * i
+    sEntry 0 j = scoreSpace * j
+    sEntry i j = maximum [sLen (i-1) (j-1) + score x y,sLen i (j-1) + score x '-',sLen (i-1) j + score '-' y]
+      where
+         x = xs!!(i-1)
+         y = ys!!(j-1)                                    
+
 {- Element type for storing intermediate table calculations -}
 type AlignmentType = (String,String)
 optAlignments :: String -> String -> [AlignmentType]
@@ -88,13 +106,12 @@ optAlignmentsTable xs ys = snd (optAlignment (length xs) (length ys))
                 y = ys!!(j-1)
 
                 -- calculate neighoring cell scores
-                diag = insertPair (scoreMismatch x y) (similarityScore (i-1) (j-1))
-                down = insertPair (scoreSpace '-' y) (similarityScore i (j-1))
-                left = insertPair (scoreSpace x '-') (similarityScore (i-1) j)
+                diag = insertPair (scoreMismatch x y) (similarityScoreNew (i-1) (j-1))
+                down = insertPair (scoreSpace '-' y) (similarityScoreNew i (j-1))
+                left = insertPair (scoreSpace x '-') (similarityScoreNew (i-1) j)
 
                 -- calculate highest candidate score
                 optNeighbor = maximaBy fst [diag, down, left]
-
 
 {- Print all optimal alignments between string1 and string2 -}
 outputOptAlignments :: String -> String -> IO ()
