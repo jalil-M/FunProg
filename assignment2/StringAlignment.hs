@@ -57,11 +57,43 @@ optAlignments [] [] = [([], [])]
 optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
 -- traverse string2 for matching char y then substring ys -}
 optAlignments [] (y:ys) = attachHeads '-' y (optAlignments [] ys)
-optAlignments (x:xs) (y:ys) = maximaBy (uncurry similarityScore) pair
-	where pair = concat [ attachHeads x y (optAlignments xs ys),       {- Alignment #1 -}
-	                      attachHeads x '-' (optAlignments xs (y:ys)), {- Alignment #2 -}
-                          attachHeads '-' y (optAlignments (x:xs) ys)  {- Alignment #3 -} ]
+-- get unoptimized similarity score
+optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[ 
+    attachHeads x y (optAlignments xs ys),       {- Alignment #1 -}
+	attachHeads x '-' (optAlignments xs (y:ys)), {- Alignment #2 -}
+    attachHeads '-' y (optAlignments (x:xs) ys)  {- Alignment #3 -} ]
+    where unoptimizedScoring (xs, ys) = sum $ zipWidth (curry score) xs ys
 
+optAlignmentsTable :: String -> String -> [AlignmentType]
+optAlignmentsTable xs ys = snd (optAlignment (length xs) (length ys))
+    where optAlignment :: Int-> Int -> (Int, [AlignmentType])
+          optAlignment i j = aTable!!i!!j
+          aTable = [[tablePair i j | j <- [0..]] | i <- [0..]]
+
+          -- checks if previous optimal path exists
+          insertPair :: Int -> Int -> (Int, [AlignmentType]) -> (Int, [AlignmentType])
+          insertPair (score x y) (simScorePrev optAlignPrev) = (score + simScorePrev, attachTails x y optAlignPrev)
+          
+          -- traceback table entry, tuple of (score, [direction])
+          tablePair :: Int-> Int -> (Int, [AlignmentType])
+          -- initialize first row, column score to zero
+          tablePair 0 0 = (0, ["",""])
+          tablePair i 0 = scoreSpace * i
+          tablePair 0 j = scoreSpace * j
+          tablePair i j
+              | x == y
+              | otherwise = (fst $ head optNeighbor, concat . map snd $ optNeighbor)
+              where
+                x = xs!!(i-1)
+                y = ys!!(j-1)
+
+                -- calculate neighoring cell scores
+                diag = insertPair (scoreMismatch x y) (similarityScore (i-1) (j-1))
+                down = insertPair (scoreSpace '-' y) (similarityScore i (j-1))
+                left = insertPair (scoreSpace x '-') (similarityScore (i-1) j)
+
+                -- calculate highest candidate score
+                optNeighbor = maximaBy fst [diag, down, left]
 
 
 {- Print all optimal alignments between string1 and string2 -}
