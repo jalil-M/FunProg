@@ -41,8 +41,8 @@ similarityScore [] [] = 0
 similarityScore [] ys = scoreSpace * length ys
 similarityScore xs [] = scoreSpace * length xs
 -- where first element is the similarity score, second is the optimal alignment pair
-similarityScore (x:xs) (y:ys) = maximum [ similarityScore xs ys + score x y, 
-                                          similarityScore xs (y:ys) + score x '-', 
+similarityScore (x:xs) (y:ys) = maximum [ similarityScore xs ys + score x y,
+                                          similarityScore xs (y:ys) + score x '-',
                                           similarityScore (x:xs) ys + score '-' y ]
 
 
@@ -67,6 +67,20 @@ similarityScoreNew xs ys = sLen (length xs) (length ys)
 type AlignmentType = (String,String)
 optAlignments :: String -> String -> [AlignmentType]
 
+{- The new similarity Score Function using the definition of mcsLength (memoization technique) -}
+similarityScoreNew :: String -> String -> Int
+similarityScoreNew xs ys = sLen (length xs) (length ys)
+  where
+    sLen i j = sTable!!i!!j
+    sTable = [[ sEntry i j | j<-[0..]] | i<-[0..] ]
+
+    sEntry :: Int -> Int -> Int
+    sEntry i 0 = scoreSpace * i
+    sEntry 0 j = scoreSpace * j
+    sEntry i j = maximum [sLen (i-1) (j-1) + score x y,sLen i (j-1) + score x '-',sLen (i-1) j + score '-' y]
+      where
+         x = xs!!(i-1)
+         y = ys!!(j-1)
 
 {- Return list of all optimal allignments between string1 and string2 -}
 -- WITHOUT memoization, to be optimized in future implementation
@@ -118,5 +132,3 @@ outputOptAlignments :: String -> String -> IO ()
 outputOptAlignments string1 string2 = do
 	putStrLn . "Optimal alignments: \n"
 	{- print list here -}
-
-
