@@ -122,8 +122,10 @@ optAlignmentsTable xs ys = snd $ optAlignment (length xs) (length ys)
 -- Testing the optAlignmentsTable method (using memoization)
 --string1 = "writers"
 --string2 = "vintner"
-string1 = "bananrepubliksinvasionsarmestabsadjutant"
-string2 = "kontrabasfiolfodralmakarmästarlärling"
+string1 = "aferociousmonadatemyhamster"
+string2 = "functionalprogrammingrules"
+--string1 = "bananrepubliksinvasionsarmestabsadjutant"
+--string2 = "kontrabasfiolfodralmakarmästarlärling"
 
 {- Print all optimal alignments between string1 and string2 -}
 outputOptAlignments :: String -> String -> IO ()
