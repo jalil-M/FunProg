@@ -1,4 +1,11 @@
-module StringAlignment where
+{- QUESTION 1 : The hardest part to code was the optAlignmentsTable part because the idea behind the code's implementation was difficult to grasp at first sight. Hence, the memoization optimization had to be perfect.-}
+{- QUESTION 2 : We are the most proud of... -}
+{- QUESTION 3 : We would like to get a particular feedback on  -}
+
+
+module Main where
+main :: IO ()
+main = outputOptAlignments string1 string2
 
 {- Smith-Waterman scoring penalties -}
 scoreMatch = 0
@@ -52,18 +59,17 @@ similarityScoreNew xs ys = optAlignment (length xs) (length ys)
 
     tablePair :: Int -> Int -> Int
     -- initialize entry to zero
-    -- iterate over similarityScore 
+    -- iterate over similarityScore
     tablePair i 0 = scoreSpace * i
     tablePair 0 j = scoreSpace * j
     tablePair i j
         | x == y = scoreMatch + optAlignment (i-1) (j-1)
-     -- | otherwise = maximum [sLen (i-1) (j-1) + score(x, y),sLen i (j-1) + score(x, '-'),sLen (i-1) j + score '-' y]
-        | otherwise = maximum [ optAlignment(i-1)(j-1) + scoreMismatch, 
-                                optAlignment i (j-1) + scoreSpace, 
+        | otherwise = maximum [ optAlignment(i-1)(j-1) + scoreMismatch,
+                                optAlignment i (j-1) + scoreSpace,
                                 optAlignment (i-1) j + scoreSpace ]
         where
             x = xs!!(i-1)
-            y = ys!!(j-1)                                    
+            y = ys!!(j-1)
 
 {- Element type for storing intermediate table calculations -}
 type AlignmentType = (String,String)
@@ -77,8 +83,7 @@ optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
 -- traverse string2 for matching char y then substring ys -}
 optAlignments [] (y:ys) = attachHeads '-' y (optAlignments [] ys)
 -- get unoptimized similarity score
---let unoptimizedScoring (xs,ys) = sum $ zipWith (curry score) xs ys
-optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[ 
+optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[
     attachHeads x y (optAlignments xs ys),       {- Alignment #1 -}
     attachHeads x '-' (optAlignments xs (y:ys)), {- Alignment #2 -}
     attachHeads '-' y (optAlignments (x:xs) ys)  {- Alignment #3 -}]
@@ -86,25 +91,24 @@ optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[
 
 optAlignmentsTable :: String -> String -> [AlignmentType]
 optAlignmentsTable xs ys = snd $ optAlignment (length xs) (length ys)
-    where 
-        -- optAlignment :: Int-> Int -> (Int, [AlignmentType])
+    where
         optAlignment i j = aTable!!i!!j
         aTable = [[tablePair i j | j <- [0..]] | i <- [0..]]
 
         -- checks if previous optimal path exists
         insertPair :: (Int, Char, Char) -> (Int, [AlignmentType]) -> (Int, [AlignmentType])
         insertPair (score, x, y) (simScorePrev, optAlignPrev) = (score + simScorePrev, attachTails x y optAlignPrev)
-        
+
         -- traceback table entry, tuple of (score, [direction])
         tablePair :: Int-> Int -> (Int, [AlignmentType])
         -- initialize first row, column score to zero
         tablePair 0 0 = (0, [("","")])
         tablePair i 0 = (scoreSpace * i, [(take i xs, replicate i '-')])
         tablePair 0 j = (scoreSpace * j, [(replicate j '-', take j ys)])
-        
+
         tablePair i j
             | x == y = insertPair (scoreMatch, x, y) (optAlignment (i-1) (j-1))
-            | otherwise = (fst $ head optNeighbor, concat . map snd $ optNeighbor)
+            | otherwise = (fst $ head optNeighbor, concatMap snd optNeighbor)
             where
                 x = xs!!(i-1)
                 y = ys!!(j-1)
@@ -116,12 +120,13 @@ optAlignmentsTable xs ys = snd $ optAlignment (length xs) (length ys)
                 optNeighbor = maximaBy fst [diag, down, left]
 
 -- Testing the optAlignmentsTable method (using memoization)
-
-string1 = "writers"
-string2 = "vintner"
+--string1 = "writers"
+--string2 = "vintner"
+string1 = "bananrepubliksinvasionsarmestabsadjutant"
+string2 = "kontrabasfiolfodralmakarmästarlärling"
 
 {- Print all optimal alignments between string1 and string2 -}
 outputOptAlignments :: String -> String -> IO ()
 outputOptAlignments string1 string2 = do
-    let optimals = optAlignmentsTable string1 string2
-	mapM_ (\(x,y) -> mapM putStrLn [x,y,""]) optimals
+  let optimals = optAlignmentsTable string1 string2
+  mapM_ (\(x,y) -> mapM putStrLn [x,y,""]) optimals
