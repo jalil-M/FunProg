@@ -1,3 +1,12 @@
+-- Q1: Which parts of your code/functions were hardest to write and why? 
+{- The hardest part to code was our `optAlignmentsTable` function. This is because the idea behind the optimal global alignment algorithm (Needleman-Wunsch) was difficult at first to grasp. We spent a large portion of our development schedule understanding the similarity matrix and scoring scheme implementations. -}
+
+-- Q2: Which parts of your code/functions are you the most proud of?
+{- For the reasons mentioned above, we are most proud of our `optAlignmentsTable` implementation. Performing the traceback process using the Needleman-Wunsch approach allows us to compute the similarityScore at a near-constant time complexity, which is a significant improvement over the previous rudimentary approach. -}
+
+-- Q3: Which parts of the code/functions would you like to get a particular feedback on?
+{- We would like to know what the difference in computational complexity would be in this context of global string alignment had we chosen to implement the Smith-Waterman approach. We would like to get feedback on the stylistic choices we made, using the various Haskell standard Prelude library functions. -}
+
 
 module Main where
 main :: IO ()
@@ -31,7 +40,7 @@ maximaBy valueFcn xs = [ value | value <- xs, valueFcn value == maximum (map val
 type AlignmentType = (String,String)
 optAlignments :: String -> String -> [AlignmentType]
 {- Return list of all optimal allignments between string1 and string2 -}
--- WITHOUT memoization, to be optimized in future implementation
+-- WITHOUT memoization, optimized in optAlignmentsTable
 optAlignments [] [] = [([], [])]
 -- traverse string1 for matching char x then substring xs -}
 optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
@@ -53,7 +62,7 @@ score (x, y)
     | otherwise = scoreMismatch
 
 {- Caclulate similarity score for two non-empty strings .. -}
--- WITHOUT memoization, to be optimized in future implementation
+-- WITHOUT memoization, optimized in similarityScoreNew
 similarityScore :: String -> String -> Int
 similarityScore [] [] = 0
 similarityScore [] ys = scoreSpace * length ys
@@ -66,7 +75,7 @@ similarityScore (x:xs) (y:ys) = maximum [ similarityScore xs ys + score(x, y),
 ----------------------------------------------------------------------------------------------------------
 --OPTIMIZATION OF THE CODE (PART 3)
 
-{- The new similarity Score Function using the definition of mcsLength (memoization technique) -}
+{- The new similarity score function using the definition of mcsLength (memoization technique) -}
 similarityScoreNew :: String -> String -> Int
 similarityScoreNew xs ys = optAlignment (length xs) (length ys)
     where
@@ -116,11 +125,16 @@ optAlignmentsTable xs ys = snd $ optAlignment (length xs) (length ys)
                 -- calculate highest candidate score
                 optNeighbor = maximaBy fst [diag, down, left]
 
--- Testing the optAlignmentsTable method (using memoization)
+{- Testing the optAlignmentsTable method using memoization with a similarity scoring matrix -}
+{- Ex1. Should return `3` optimal alignments -}
 --string1 = "writers"
 --string2 = "vintner"
+
+{- Ex2. Should return `308` optimal alignments -}
 string1 = "aferociousmonadatemyhamster"
 string2 = "functionalprogrammingrules"
+
+{- Ex3. Should return `1736` optimal alignments -}
 --string1 = "bananrepubliksinvasionsarmestabsadjutant"
 --string2 = "kontrabasfiolfodralmakarmästarlärling"
 
