@@ -22,6 +22,7 @@ attachHeads h1 h2 aList = [(h1:xs,h2:ys) | (xs,ys) <- aList]
 attachTails :: a -> a -> [([a],[a])] -> [([a],[a])]
 attachTails h1 h2 aList = [(xs++[h1], ys++[h2]) | (xs,ys) <- aList]
 
+{- Generalization of the maximum function in two respects ("value" and all max elements) -}
 maximaBy :: Ord b => (a -> b) -> [a] -> [a]
 maximaBy _ [] = []
 maximaBy valueFcn xs = [ value | value <- xs, valueFcn value == maximum (map valueFcn xs)]
@@ -73,8 +74,6 @@ similarityScoreNew xs ys = optAlignment (length xs) (length ys)
     aTable = [[ tablePair i j | j<-[0..]] | i<-[0..] ]
 
     tablePair :: Int -> Int -> Int
-    -- initialize entry to zero
-    -- iterate over similarityScore
     tablePair i 0 = scoreSpace * i
     tablePair 0 j = scoreSpace * j
     tablePair i j
