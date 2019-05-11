@@ -1,7 +1,3 @@
-{- QUESTION 1 : The hardest part to code was the optAlignmentsTable part because the idea behind the code's implementation was difficult to grasp at first sight. Hence, the memoization optimization had to be perfect.-}
-{- QUESTION 2 : We are the most proud of... -}
-{- QUESTION 3 : We would like to get a particular feedback on  -}
-
 
 module Main where
 main :: IO ()
@@ -30,6 +26,23 @@ maximaBy :: Ord b => (a -> b) -> [a] -> [a]
 maximaBy _ [] = []
 maximaBy valueFcn xs = [ value | value <- xs, valueFcn value == maximum (map valueFcn xs)]
 
+{- Element type for storing intermediate table calculations -}
+type AlignmentType = (String,String)
+optAlignments :: String -> String -> [AlignmentType]
+{- Return list of all optimal allignments between string1 and string2 -}
+-- WITHOUT memoization, to be optimized in future implementation
+optAlignments [] [] = [([], [])]
+-- traverse string1 for matching char x then substring xs -}
+optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
+-- traverse string2 for matching char y then substring ys -}
+optAlignments [] (y:ys) = attachHeads '-' y (optAlignments [] ys)
+-- get unoptimized similarity score
+optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[
+    attachHeads x y (optAlignments xs ys),       {- Alignment #1 -}
+    attachHeads x '-' (optAlignments xs (y:ys)), {- Alignment #2 -}
+    attachHeads '-' y (optAlignments (x:xs) ys)  {- Alignment #3 -}]
+    where unoptimizedScoring (xs, ys) = sum $ zipWith (curry score) xs ys
+
 {- .. where the local optimal alignment between xs and ys is determined by the resulting column score -}
 score :: (Char, Char) -> Int
 score (x, '-') = scoreSpace
@@ -49,6 +62,8 @@ similarityScore (x:xs) (y:ys) = maximum [ similarityScore xs ys + score(x, y),
                                           similarityScore xs (y:ys) + score(x, '-'),
                                           similarityScore (x:xs) ys + score('-', y) ]
 
+----------------------------------------------------------------------------------------------------------
+--OPTIMIZATION OF THE CODE (PART 3)
 
 {- The new similarity Score Function using the definition of mcsLength (memoization technique) -}
 similarityScoreNew :: String -> String -> Int
@@ -71,23 +86,6 @@ similarityScoreNew xs ys = optAlignment (length xs) (length ys)
             x = xs!!(i-1)
             y = ys!!(j-1)
 
-{- Element type for storing intermediate table calculations -}
-type AlignmentType = (String,String)
-optAlignments :: String -> String -> [AlignmentType]
-
-{- Return list of all optimal allignments between string1 and string2 -}
--- WITHOUT memoization, to be optimized in future implementation
-optAlignments [] [] = [([], [])]
--- traverse string1 for matching char x then substring xs -}
-optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
--- traverse string2 for matching char y then substring ys -}
-optAlignments [] (y:ys) = attachHeads '-' y (optAlignments [] ys)
--- get unoptimized similarity score
-optAlignments (x:xs) (y:ys) = maximaBy unoptimizedScoring $ concat[
-    attachHeads x y (optAlignments xs ys),       {- Alignment #1 -}
-    attachHeads x '-' (optAlignments xs (y:ys)), {- Alignment #2 -}
-    attachHeads '-' y (optAlignments (x:xs) ys)  {- Alignment #3 -}]
-    where unoptimizedScoring (xs, ys) = sum $ zipWith (curry score) xs ys
 
 optAlignmentsTable :: String -> String -> [AlignmentType]
 optAlignmentsTable xs ys = snd $ optAlignment (length xs) (length ys)
