@@ -48,7 +48,7 @@ accept w = (token (chars (length w))) ? (==w)
 
 --here
 require :: String -> Parser String
-require wrd = (token (chars (length wrd))) ? (==wrd) ! err ("expecting " ++ wrd)
+require wrd = accept wrd ! err wrd 
 
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
