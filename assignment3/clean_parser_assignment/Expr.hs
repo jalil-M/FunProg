@@ -28,7 +28,7 @@ import Parser hiding (T)
 import qualified Dictionary
 
 data Expr = Num Integer | Var String | Add Expr Expr
-       | Sub Expr Expr | Mul Expr Expr | Div Expr Expr
+       | Sub Expr Expr | Mul Expr Expr | Div Expr Expr | Exp Expr Expr
          deriving Show
 
 type T = Expr
@@ -40,6 +40,8 @@ term', expr' :: Expr -> Parser Expr
 var = word >-> Var
 
 num = number >-> Num
+
+expOp = lit '^' >-> (\_ -> Exp)
 
 mulOp = lit '*' >-> (\_ -> Mul) !
         lit '/' >-> (\_ -> Div)
@@ -69,6 +71,7 @@ shw prec (Add t u) = parens (prec>5) (shw 5 t ++ "+" ++ shw 5 u)
 shw prec (Sub t u) = parens (prec>5) (shw 5 t ++ "-" ++ shw 6 u)
 shw prec (Mul t u) = parens (prec>6) (shw 6 t ++ "*" ++ shw 6 u)
 shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
+-- shw prec (Div t u) = parens (prec>7) (shw 7 t ++ "/" ++ shw 7 u)
 
 --here
 value :: Expr -> Dictionary.T String Integer -> Integer
@@ -79,6 +82,7 @@ value (Var variable) x = case Dictionary.lookup variable x of
 value (Add e1 e2) x = value e1 x + value e2 x
 value (Sub e1 e2) x = value e1 x - value e2 x
 value (Mul e1 e2) x = value e1 x * value e2 x
+value (Exp e1 e2) x = value e1 x ^ value e2 x
 value (Div e1 e2) x = case value e2 x of
                         0 -> error "Expr Error : Impossible Division by zero"
                         n -> value e1 x `quot` n
