@@ -16,38 +16,42 @@ iter m = m # iter m >-> cons ! return []
 
 cons(a, b) = a:b
 
---HERE
+{- BEGIN Task 1: Parser functions implementation -}
+
 (-#) :: Parser a -> Parser b -> Parser b
+-- accepts the same input as `m # n` but returns just the result from `n` parser
+-- declared as a left associative infix operator with precedence 7
 m -# n = m # n >-> snd
 
---HERE
 (#-) :: Parser a -> Parser b -> Parser a
+--accepts the same input as `m # n` but returns the result from the `m` parser
 m #- n = m # n >-> fst
-
---here
-spaces :: Parser String
-spaces = iter (char ? isSpace)
 
 token :: Parser a -> Parser a
 token m = m #- spaces
 
---here
 letter :: Parser Char
+-- parser for a letter as defined by the Prelude `isAlpha` function
 letter = char ? isAlpha
+
+spaces :: Parser String
+-- accepts any number of whitespace characters
+spaces = iter (char ? isSpace)
+
+chars :: Int -> Parser String
+chars 0 = return []
+-- accepts n number of characters
+chars n = char # chars (n-1) >-> cons
 
 word :: Parser String
 word = token (letter # iter letter >-> cons)
 
---here
-chars :: Int -> Parser String
-chars 0 = return []
-chars n = char # chars (n-1) >-> cons
 
 accept :: String -> Parser String
 accept w = (token (chars (length w))) ? (==w)
 
---here
 require :: String -> Parser String
+-- reports the missing string using `err` in case of failure
 require wrd = accept wrd ! err wrd 
 
 lit :: Char -> Parser Char

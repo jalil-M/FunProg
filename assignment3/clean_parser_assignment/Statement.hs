@@ -87,6 +87,4 @@ toString' (Begin list) = "Begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
 {- Task 3c: Use these functions to define `parse` -}
 instance Parse Statement where
   parse = assignment ! ifStmt ! while ! readStmt ! write ! skip ! begin 
-  	--error "Statement.parse not implemented"
   toString = toString'
-  	--error "Statement.toString not implemented"
