@@ -56,15 +56,15 @@ exec [] _ _ = []
 exec (Assignment name expr: stmts) dict input = exec stmts (Dictionary.insert(name, Expr.value expr dict) dict) input
 
 -- Hint 3d: example execution of a conditional statement
-exec (If cond thenStmts elseStmts: stmts) dict input = 
-    if (Expr.value cond dict) > 0 
+exec (If cond thenStmts elseStmts: stmts) dict input =
+    if (Expr.value cond dict) > 0
     then exec (thenStmts: stmts) dict input
     else exec (elseStmts: stmts) dict input
 
-exec (While expr stmt: stmts) dict input = 
-	if (Expr.value expr dict) > 0
-	then exec (stmt:(While expr stmt: stmts)) dict input
-	else exec stmts dict input
+exec (While expr stmt: stmts) dict input =
+  if (Expr.value expr dict) > 0
+  then exec (stmt:(While expr stmt: stmts)) dict input
+  else exec stmts dict input
 
 -- Hint 3d: `write` adds value to the returned list
 exec (Write expr : stmts) dict input =  Expr.value expr dict : exec stmts dict input
@@ -86,5 +86,5 @@ toString' (Begin list) = "Begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
 
 {- Task 3c: Use these functions to define `parse` -}
 instance Parse Statement where
-  parse = assignment ! ifStmt ! while ! readStmt ! write ! skip ! begin 
+  parse = assignment ! ifStmt ! while ! readStmt ! write ! skip ! begin
   toString = toString'
