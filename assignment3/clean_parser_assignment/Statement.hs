@@ -28,7 +28,7 @@ assignment, ifStmt, while, readStmt, write, skip, begin, comment :: Parser State
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
 buildAss (v, e) = Assignment v e
 
-ifStmt = (accept "if" -# Expr.parse #- require "then" # parse #- require "else") # parse >-> buildIf
+ifStmt = accept "if" -# Expr.parse #- require "then" # parse #- require "else" # parse >-> buildIf
 buildIf ((a,b), c) = If a b c
 
 while = accept "while" -# Expr.parse #- require "do" # parse >-> buildWhile
@@ -61,8 +61,8 @@ exec [] _ _ = []
 exec (Assignment name expr: stmts) dict input = exec stmts (Dictionary.insert(name, Expr.value expr dict) dict) input
 
 -- Hint 3d: example execution of a conditional statement
-exec (If cond thenStmts elseStmts: stmts) dict input =
-    if (Expr.value cond dict) > 0
+exec (If expr thenStmts elseStmts: stmts) dict input =
+    if (Expr.value expr dict) > 0
     then exec (thenStmts: stmts) dict input
     else exec (elseStmts: stmts) dict input
 
@@ -90,7 +90,7 @@ toString' (Read name) = "Read " ++ name ++ ";\n"
 toString' (Write expr) = "Write " ++ Expr.toString expr ++ ";\n"
 toString' (Skip) = "skip;\n"
 toString' (Begin list) = "Begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
-toString' (Comment ln) = "-- " ++ Expr.toString ln ++ ";\n"
+toString' (Comment ln) = "-- " ++ ln ++ ";\n"
 
 {- Task 3c: Use these functions to define `parse` -}
 instance Parse Statement where
