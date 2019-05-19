@@ -12,6 +12,7 @@ data Statement =
         | Write Expr.T
         | Skip
         | Begin [Statement]
+        | Comment String
     deriving Show
 
 {- Background info: Parser operators (Andersson 2001)
@@ -21,7 +22,7 @@ data Statement =
 -}
 
 {- Task 3a. Write constructors for the seven kinds of statements -}
-assignment, ifStmt, while, readStmt, write, skip, begin :: Parser Statement
+assignment, ifStmt, while, readStmt, write, skip, begin, comment :: Parser Statement
 
 {- Task 3b: Define a parsing function for each kind of statement -}
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
@@ -44,6 +45,10 @@ buildSkip _ = Skip
 
 begin = accept "begin" -# iter parse #- require "end" >-> buildBegin
 buildBegin a = Begin a
+
+{- Task 5. Add `comment` functionality to parser -}
+comment = accept "--" -# line_in #- require "\n" >-> buildComment
+buildComment = Comment
 
 {- Task 3d. Write the exec functions for each kind of statement -}
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
@@ -75,6 +80,8 @@ exec (Skip : stmts) dict input = exec stmts dict input
 
 exec (Begin list : stmts) dict input = exec (list ++ stmts) dict input
 
+exec (Comment ln : stmts) dict input = exec stmts dict input
+
 toString' :: Statement -> String
 toString' (Assignment name expr) = name ++ " := " ++ Expr.toString expr ++ ";\n"
 toString' (If cond thenStmt elseStmt) = "if " ++ Expr.toString cond ++ "\nthen\n" ++ toString thenStmt ++ "else\n" ++ toString elseStmt
@@ -83,8 +90,9 @@ toString' (Read name) = "Read " ++ name ++ ";\n"
 toString' (Write expr) = "Write " ++ Expr.toString expr ++ ";\n"
 toString' (Skip) = "skip;\n"
 toString' (Begin list) = "Begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
+toString' (Comment ln) = "-- " ++ Expr.toString ln ++ ";\n"
 
 {- Task 3c: Use these functions to define `parse` -}
 instance Parse Statement where
-  parse = assignment ! ifStmt ! while ! readStmt ! write ! skip ! begin
+  parse = assignment ! ifStmt ! while ! readStmt ! write ! skip ! begin ! comment
   toString = toString'

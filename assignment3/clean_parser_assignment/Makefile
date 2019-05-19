@@ -1,4 +1,4 @@
-default:
+sdefault:
 	@echo nothing done
 
 clean:
