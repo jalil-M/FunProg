@@ -1,4 +1,4 @@
-module Parser(module CoreParser, T, digit, digitVal, chars, letter, err, line_in
+module Parser(module CoreParser, T, digit, digitVal, chars, letter, err, line_in,
               lit, number, iter, accept, require, token,
               spaces, word, (-#), (#-)) where
 import Prelude hiding (return, fail)
@@ -46,13 +46,12 @@ chars n = char # chars (n-1) >-> cons
 word :: Parser String
 word = token (letter # iter letter >-> cons)
 
-
 accept :: String -> Parser String
 accept w = (token (chars (length w))) ? (==w)
 
 require :: String -> Parser String
 -- reports the missing string using `err` in case of failure
-require wrd = accept wrd ! err wrd 
+require wrd = accept wrd ! err wrd
 
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
