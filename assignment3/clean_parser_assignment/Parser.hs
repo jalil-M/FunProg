@@ -11,6 +11,7 @@ type T a = Parser a
 err :: String -> Parser a
 err message cs = error (message++" near "++cs++"\n")
 
+-- insert parantheses to indicate precedence of operators
 iter :: Parser a -> Parser [a]
 iter m = m # iter m >-> cons ! return []
 
@@ -27,6 +28,7 @@ m -# n = m # n >-> snd
 --accepts the same input as `m # n` but returns the result from the `m` parser
 m #- n = m # n >-> fst
 
+-- consider and remove whitespaces after the accepted string
 token :: Parser a -> Parser a
 token m = m #- spaces
 
@@ -53,12 +55,15 @@ require :: String -> Parser String
 -- reports the missing string using `err` in case of failure
 require wrd = accept wrd ! err wrd
 
+-- accept two chars, determine if first is equal to second then return
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
 
+-- determine if a character is a digit
 digit :: Parser Char
 digit = char ? isDigit
 
+-- accepts a digit and returns an int using Prelude function
 digitVal :: Parser Integer
 digitVal = digit >-> digitToInt >-> fromIntegral
 
