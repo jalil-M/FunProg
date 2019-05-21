@@ -25,6 +25,7 @@ data Statement =
 assignment, ifStmt, while, readStmt, write, skip, begin, comment :: Parser Statement
 
 {- Task 3b: Define a parsing function for each kind of statement -}
+-- Indicates the start of a string
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
 buildAss (v, e) = Assignment v e
 
@@ -73,13 +74,13 @@ exec (While expr stmt: stmts) dict input =
 
 -- Hint 3d: `write` adds value to the returned list
 exec (Write expr : stmts) dict input =  Expr.value expr dict : exec stmts dict input
-
+-- Reads in variable and adds it to dictionary
 exec (Read expr : stmts) dict (it:input) = exec stmts (Dictionary.insert (expr, it) dict) input
-
+-- Avoids compile error
 exec (Skip : stmts) dict input = exec stmts dict input
 
 exec (Begin list : stmts) dict input = exec (list ++ stmts) dict input
-
+-- Skip over lines beginning with comment until a newline char is reached
 exec (Comment ln : stmts) dict input = exec stmts dict input
 
 toString' :: Statement -> String
