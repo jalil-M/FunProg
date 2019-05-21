@@ -41,6 +41,7 @@ var = word >-> Var
 
 num = number >-> Num
 
+-- Exponentiation Operation
 expOp = lit '^' >-> (\_ -> Expo)
 
 mulOp = lit '*' >-> (\_ -> Mul) !
@@ -56,6 +57,7 @@ factor = num !
          lit '(' -# expr #- lit ')' !
          err "illegal factor"
 
+-- Exponentiation Implmentation (task 7)
 expo' e = expOp # factor >-> bldOp e #> expo' ! return e
 expo = factor #> expo'
 
@@ -76,7 +78,7 @@ shw prec (Mul t u) = parens (prec>6) (shw 6 t ++ "*" ++ shw 6 u)
 shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
 shw prec (Expo t u) = parens (prec>7) (shw 7 t ++ "^" ++ shw 7 u)
 
---here
+-- implementation of the "value" function in this module. (task 2)
 value :: Expr -> Dictionary.T String Integer -> Integer
 value (Num n) _ = n
 value (Var variable) x = case Dictionary.lookup variable x of
