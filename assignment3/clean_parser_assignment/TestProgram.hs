@@ -81,3 +81,12 @@ s4 = "\
 p4 = fromString s4
 
 rp4 = Program.exec p4 [4,4]
+
+s5 = "\
+\read d;\
+\x := 3;\
+\d := 2*x^2;\
+\write d;"
+
+p5 = fromString s5
+rp5 = Program.exec p5 [0]
