@@ -87,10 +87,10 @@ toString' :: Statement -> String
 toString' (Assignment name expr) = name ++ " := " ++ Expr.toString expr ++ ";\n"
 toString' (If cond thenStmt elseStmt) = "if " ++ Expr.toString cond ++ "\nthen\n" ++ toString thenStmt ++ "else\n" ++ toString elseStmt
 toString' (While expr stmts) = "while " ++ Expr.toString expr ++ " do\n" ++ toString stmts
-toString' (Read name) = "Read " ++ name ++ ";\n"
-toString' (Write expr) = "Write " ++ Expr.toString expr ++ ";\n"
+toString' (Read name) = "read " ++ name ++ ";\n"
+toString' (Write expr) = "write " ++ Expr.toString expr ++ ";\n"
 toString' (Skip) = "skip;\n"
-toString' (Begin list) = "Begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
+toString' (Begin list) = "begin\n" ++ foldr1 (++) (map toString list) ++ "end\n"
 toString' (Comment ln) = "-- " ++ ln ++ ";\n"
 
 {- Task 3c: Use these functions to define `parse` -}

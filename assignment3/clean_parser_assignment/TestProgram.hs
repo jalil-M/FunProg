@@ -56,6 +56,8 @@ sp = putStr (toString p)
 sp1 = putStr (toString p1)
 
 p2 = fromString (toString p)
+teeest = toString p
+
 
 p3 = fromString (toString p1)
 
